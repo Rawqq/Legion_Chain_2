@@ -3,31 +3,21 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
-# Get credentials from environment variables
 TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '8583352280:AAEKrbrxN41W3557YhFuCRg37LQ_dvMkb1g')
 ADMIN_IDS = [int(os.getenv('ADMIN_ID', '0'))]
 
 bot = telebot.TeleBot(TOKEN)
 
-# ============================================================
-# КОМАНДА /start - Главный вход в приложение
-# ============================================================
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    """Главная команда - открывает мини-приложение"""
     user_id = message.from_user.id
-
-    # Создаём кнопку для открытия мини-приложения
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
     webApp = telebot.types.WebAppInfo(
         "https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/1cba166588e51af668d0e7b4e5d393ef/3204afed-0e38-40e7-bd9a-7a0c3ae76af1/index.html"
     )
-
     markup.add(telebot.types.KeyboardButton(text="🚀 Открыть Chain Pro", web_app=webApp))
-
     welcome_text = """
 🎯 **Добро пожаловать в Legion Chain Score Pro!**
 
@@ -40,20 +30,10 @@ def send_welcome(message):
 
 Нажми кнопку ниже, чтобы начать!
     """
+    bot.send_message(message.chat.id, welcome_text, reply_markup=markup, parse_mode='Markdown')
 
-    bot.send_message(
-        message.chat.id, 
-        welcome_text, 
-        reply_markup=markup,
-        parse_mode='Markdown'
-    )
-
-# ============================================================
-# КОМАНДА /info - Информация о подписках
-# ============================================================
 @bot.message_handler(commands=['info'])
 def send_info(message):
-    """Показывает информацию о планах подписок"""
     info_text = """
 💎 **LEGION CHAIN PRO - ПОДПИСКИ**
 
@@ -61,35 +41,26 @@ def send_info(message):
 ├─ Длительность: 7 дней
 ├─ Транзакции: 120-150
 ├─ Chain Score: +142 баллов
-├─ Блокчейн: 1 на выбор
-└─ Лучше всего для: Тестирования
+└─ Блокчейн: 1 на выбор
 
 📌 **PROFESSIONAL** - 1000 ⭐ (РЕКОМЕНДУЕТСЯ)
 ├─ Длительность: 14 дней
 ├─ Транзакции: 350
 ├─ Chain Score: +400 баллов
-├─ Блокчейны: Все 3 одновременно
-├─ Оптимизация: Автоматическая
-└─ Лучше всего для: Активных пользователей
+└─ Блокчейны: Все 3
 
 📌 **ENTERPRISE** - 1500 ⭐
 ├─ Длительность: 30 дней
 ├─ Транзакции: 1000+
 ├─ Chain Score: +750 баллов
-├─ Блокчейны: Все 3 + Мультикошельки
-├─ Поддержка: 24/7
-└─ Лучше всего для: Максимального буста
+└─ Блокчейны: Все 3 + Мультикошельки
 
 🔗 Открой приложение, чтобы выбрать подписку!
     """
     bot.send_message(message.chat.id, info_text, parse_mode='Markdown')
 
-# ============================================================
-# КОМАНДА /help - Справка
-# ============================================================
 @bot.message_handler(commands=['help'])
 def send_help(message):
-    """Показывает доступные команды"""
     help_text = """
 📖 **ДОСТУПНЫЕ КОМАНДЫ**
 
@@ -104,14 +75,9 @@ def send_help(message):
     """
     bot.send_message(message.chat.id, help_text, parse_mode='Markdown')
 
-# ============================================================
-# КОМАНДА /status - Проверка статуса подписки
-# ============================================================
 @bot.message_handler(commands=['status'])
 def check_status(message):
-    """Проверяет статус подписки пользователя"""
     user_id = message.from_user.id
-
     status_text = f"""
 👤 **Статус твоей подписки**
 
@@ -129,20 +95,15 @@ ID пользователя: {user_id}
     """
     bot.send_message(message.chat.id, status_text, parse_mode='Markdown')
 
-# ============================================================
-# КОМАНДА /support - Поддержка
-# ============================================================
 @bot.message_handler(commands=['support'])
 def send_support(message):
-    """Информация о поддержке"""
     support_text = """
 🆘 **СЛУЖБА ПОДДЕРЖКИ**
 
 Для помощи:
 📧 Email: support@legion.cc
 🌐 Сайт: https://legion.cc
-💬 Discord: [ссылка на Discord]
-📱 Telegram: @LegionSupport
+💬 Telegram: @LegionSupport
 
 Частые вопросы:
 ❓ Платёж не прошёл? Проверь баланс Telegram Stars
@@ -151,18 +112,12 @@ def send_support(message):
     """
     bot.send_message(message.chat.id, support_text, parse_mode='Markdown')
 
-# ============================================================
-# КОМАНДА /admin - Админ-панель
-# ============================================================
 @bot.message_handler(commands=['admin'])
 def admin_panel(message):
-    """Доступ к админ-панели"""
     user_id = message.from_user.id
-
     if user_id not in ADMIN_IDS:
         bot.send_message(message.chat.id, "❌ У тебя нет доступа к админ-панели.")
         return
-
     admin_text = """
 🔐 **АДМИН-ПАНЕЛЬ**
 
@@ -178,12 +133,8 @@ def admin_panel(message):
     """
     bot.send_message(message.chat.id, admin_text, parse_mode='Markdown')
 
-# ============================================================
-# ОБРАБОТКА ОСТАЛЬНЫХ СООБЩЕНИЙ
-# ============================================================
 @bot.message_handler(func=lambda message: True)
 def handle_text(message):
-    """Обработка любых других сообщений"""
     response = """
 👋 Привет! Я Legion Chain Pro Bot.
 
@@ -197,9 +148,6 @@ def handle_text(message):
     """
     bot.send_message(message.chat.id, response)
 
-# ============================================================
-# ГЛАВНАЯ ФУНКЦИЯ - ЗАПУСК БОТА
-# ============================================================
 if __name__ == '__main__':
     print("=" * 60)
     print("LEGION CHAIN PRO - TELEGRAM BOT (HEROKU)")
@@ -219,7 +167,7 @@ if __name__ == '__main__':
     print("  /help - Справка")
     print("  /admin - Админ-панель")
     print("=" * 60)
-
+    
     try:
         bot.polling()
     except Exception as e:
